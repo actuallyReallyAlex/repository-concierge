@@ -70,15 +70,14 @@ class App {
 
     this.app.get("*", (req: Request, res: Response) => {
       try {
-        return res.send("Hello, World!");
-        // if (
-        //   req.headers.host === "localhost:3000" &&
-        //   process.env.NODE_ENV === "development" &&
-        //   req.path === "/"
-        // ) {
-        //   return res.send();
-        // }
-        // res.sendFile(path.join(__dirname, "/dist/index.html"));
+        if (
+          req.headers.host === "localhost:3000" &&
+          process.env.NODE_ENV === "development" &&
+          req.path === "/"
+        ) {
+          return res.send();
+        }
+        res.sendFile(path.join(__dirname, "/dist/index.html"));
       } catch (error) {
         console.error("Error in Main Router");
         console.error(error);
