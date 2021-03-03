@@ -15,6 +15,9 @@ const config = {
   devServer: {
     contentBase: path.join(__dirname, "src/assets/"),
     contentBasePublicPath: "/assets",
+    proxy: {
+      "*": "http://localhost:3000",
+    },
   },
   mode,
   module: {

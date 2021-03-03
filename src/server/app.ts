@@ -76,8 +76,9 @@ class App {
           req.path === "/"
         ) {
           return res.send();
+        } else {
+          return res.status(404).send();
         }
-        res.sendFile(path.join(__dirname, "/dist/index.html"));
       } catch (error) {
         console.error("Error in Main Router");
         console.error(error);
