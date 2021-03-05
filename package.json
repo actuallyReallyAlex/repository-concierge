@@ -7,11 +7,10 @@
     "build": "npm run lint && npm run build-server && npm run build-client && ls -l",
     "build-client": "webpack && copyfiles -f dist/**/* build/dist && rimraf dist",
     "build-server": "tsc && copyfiles -f src/server/assets/* build/assets --error --verbose",
-    "develop": "env-cmd start-server-and-test start-server 3000 \"webpack serve\"",
+    "develop": "npm run build-server && env-cmd node build/index.js",
     "format": "prettier --write .",
     "lint": "eslint ./src",
-    "start": "node build/index.js",
-    "start-server": "npm run build-server && env-cmd node build/index.js"
+    "start": "node build/index.js"
   },
   "repository": {
     "type": "git",
@@ -48,7 +47,6 @@
     "html-webpack-plugin": "^5.2.0",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
-    "start-server-and-test": "^1.12.0",
     "style-loader": "^2.0.0",
     "ts-loader": "^8.0.17",
     "typescript": "^4.2.2",

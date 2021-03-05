@@ -28,7 +28,8 @@ const Home = () => {
 };
 
 const Redirect = () => {
-  console.log(window.location);
+  const accessToken = window.location.search.split("=")[1];
+  console.log({ accessToken });
   return <h1>REDIRECT</h1>;
 };
 
