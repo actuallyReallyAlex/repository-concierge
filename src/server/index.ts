@@ -1,7 +1,7 @@
 import App from "./app";
 
 import AssetsController from "./controllers/Assets";
-import GitHubController from "./controllers/GitHub";
+import AuthController from "./controllers/Auth";
 
 import { Controller } from "./types";
 
@@ -11,7 +11,7 @@ const main = async (): Promise<void> => {
 
     const controllers: Controller[] = [
       new AssetsController(),
-      new GitHubController(),
+      new AuthController(),
     ];
 
     const app = new App(controllers, process.env.PORT);

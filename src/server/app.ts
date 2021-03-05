@@ -5,10 +5,25 @@ import cors, { CorsOptions } from "cors";
 import express, { Request, Response } from "express";
 import morgan from "morgan";
 import path from "path";
+import webpack from "webpack";
+import webpackDevMiddleware from "webpack-dev-middleware";
 
 import rateLimiter from "./middleware/rateLimiter";
+import config from "./webpack.config";
 
 import { Controller } from "./types";
+
+const compiler = webpack(config);
+
+const parseLocals = (res: any) => {
+  const { devMiddleware } = res.locals.webpack;
+  const outputFileSystem = devMiddleware;
+  const jsonWebpackStats = devMiddleware.stats.toJson();
+  const { assetsByChunkName, outputPath } = jsonWebpackStats;
+  const chunkPaths: string[][] = Object.values(assetsByChunkName);
+  const assets = chunkPaths.map((fileArr) => fileArr[0]);
+  return { assets, outputFileSystem, outputPath };
+};
 
 class App {
   public app: express.Application;
@@ -29,6 +44,9 @@ class App {
     this.app.use(compression());
     if (process.env.NODE_ENV === "production") {
       this.app.use(rateLimiter);
+    }
+    if (process.env.NODE_ENV === "development") {
+      this.app.use(webpackDevMiddleware(compiler, { serverSideRender: true }));
     }
     if (process.env.NODE_ENV !== "test") {
       this.app.use(morgan("dev"));
@@ -62,27 +80,34 @@ class App {
       this.app.use("/", controller.router);
     });
 
-    this.app.use(express.static(path.join(__dirname, "../dist")));
-
     this.app.get("/robots.txt", (req: Request, res: Response) =>
       res.sendFile(path.join(__dirname, `/assets/robots.txt`))
     );
 
-    this.app.get("*", (req: Request, res: Response) => {
-      try {
-        if (
-          req.headers.host === "localhost:3000" &&
-          process.env.NODE_ENV === "development" &&
-          req.path === "/"
-        ) {
-          return res.send();
-        } else {
-          return res.status(404).send();
-        }
-      } catch (error) {
-        console.error("Error in Main Router");
-        console.error(error);
-      }
+    this.app.use((req, res) => {
+      const { assets, outputFileSystem, outputPath } = parseLocals(res);
+      return res.send(`
+      <html>
+        <head>
+          <title>repository-concierge</title>
+          <style>
+          ${assets
+            .filter((path) => path.endsWith(".css"))
+            .map((path) =>
+              outputFileSystem.readFileSync(path.concat(outputPath, path))
+            )
+            .join("\n")}
+          </style>
+        </head>
+        <body>
+          <div id="root"></div>
+          ${assets
+            .filter((path) => path.endsWith(".js"))
+            .map((path) => `<script src="${path}"></script>`)
+            .join("\n")}
+        </body>
+      </html>
+        `);
     });
   }
 
