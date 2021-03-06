@@ -3,17 +3,14 @@ import cookieParser from "cookie-parser";
 import compression from "compression";
 import cors, { CorsOptions } from "cors";
 import express, { Request, Response } from "express";
+import mongoose from "mongoose";
 import morgan from "morgan";
 import path from "path";
-import webpack from "webpack";
-import webpackDevMiddleware from "webpack-dev-middleware";
 
+import compiler from "./middleware/compiler";
 import rateLimiter from "./middleware/rateLimiter";
-import config from "./webpack.config";
 
 import { Controller } from "./types";
-
-const compiler = webpack(config);
 
 const parseLocals = (res: any) => {
   const { devMiddleware } = res.locals.webpack;
@@ -28,14 +25,26 @@ const parseLocals = (res: any) => {
 class App {
   public app: express.Application;
 
+  public dbUrl: string;
   public port: string;
 
-  constructor(controllers: Controller[], port: string) {
+  constructor(controllers: Controller[], port: string, dbUrl: string) {
     this.app = express();
     this.port = port;
+    this.dbUrl = dbUrl;
 
+    this.initializeDatabase();
     this.initializeMiddlewares();
     this.initializeControllers(controllers);
+  }
+
+  private initializeDatabase(): void {
+    mongoose.connect(this.dbUrl, {
+      useNewUrlParser: true,
+      useCreateIndex: true,
+      useFindAndModify: false,
+      useUnifiedTopology: true,
+    });
   }
 
   private initializeMiddlewares(): void {
@@ -46,7 +55,7 @@ class App {
       this.app.use(rateLimiter);
     }
     if (process.env.NODE_ENV === "development") {
-      this.app.use(webpackDevMiddleware(compiler, { serverSideRender: true }));
+      this.app.use(compiler);
     }
     if (process.env.NODE_ENV !== "test") {
       this.app.use(morgan("dev"));
