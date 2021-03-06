@@ -1,3 +1,4 @@
+import { Octokit } from "@octokit/rest";
 import express, { Router, Request, Response } from "express";
 import auth from "../middleware/auth";
 import UserModel from "../models/User";
@@ -13,7 +14,17 @@ class UserController {
   public initializeRoutes(): void {
     this.router.post("/users", async (req: Request, res: Response) => {
       try {
-        const user = new UserModel({ accessToken: req.body.accessToken });
+        const accessToken = req.body.accessToken;
+        const octokit = new Octokit({ auth: accessToken });
+        const response = await octokit.repos.listForAuthenticatedUser({
+          per_page: 100,
+        });
+        const repos = response.data;
+
+        const user = new UserModel({
+          accessToken,
+          repos,
+        });
 
         await user.save();
 
@@ -30,7 +41,7 @@ class UserController {
 
         await user.save();
 
-        return res.status(201).send(user);
+        return res.status(201).send();
       } catch (error) {
         console.error(error);
         return res.status(500).send({ error: "Error when Creating a User" });

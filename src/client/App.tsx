@@ -5,7 +5,6 @@ import {
   Switch,
   Route,
 } from "react-router-dom";
-import { Octokit } from "@octokit/rest";
 
 const Home = () => {
   const [accessToken, setAccessToken] = React.useState("");
@@ -22,16 +21,11 @@ const Home = () => {
       .catch((error) => console.error(error));
   }, []);
 
-  React.useEffect(() => {
-    if (accessToken) {
-      const octokit = new Octokit({ auth: accessToken });
+  // React.useEffect(() => {
+  //   if (accessToken) {
 
-      octokit.repos
-        .listForAuthenticatedUser({ per_page: 100 })
-        .then((response) => setRepos(response.data))
-        .catch((error) => console.error(error));
-    }
-  }, [accessToken]);
+  //   }
+  // }, [accessToken]);
 
   const handleLogIn = async () => {
     const response = await fetch("/auth", {
@@ -76,10 +70,12 @@ const Redirect = () => {
       },
       method: "POST",
     })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log({ data });
-        setAccessTokenSaved(true);
+      .then((response) => {
+        if (response.status !== 201) {
+          console.error("Error!");
+        } else {
+          setAccessTokenSaved(true);
+        }
       })
       .catch((error) => console.error(error));
   }, [accessToken]);
