@@ -5,10 +5,11 @@ import {
   Switch,
   Route,
 } from "react-router-dom";
+import { ResponseDataReposPullsGET } from "../server/types";
 
 const Home = () => {
   const [accessToken, setAccessToken] = React.useState("");
-  const [repos, setRepos] = React.useState<any>([]);
+  const [prRepos, setPRRepos] = React.useState<ResponseDataReposPullsGET>([]);
 
   React.useEffect(() => {
     fetch("/users/me")
@@ -44,16 +45,35 @@ const Home = () => {
     window.location.assign(body.url);
   };
 
+  const handlePRs = async () => {
+    const response = await fetch("/repos/pull-requests", {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "GET",
+    });
+    console.log(response);
+    const data: ResponseDataReposPullsGET = await response.json();
+    console.log(data);
+    setPRRepos(data);
+  };
+
   return (
     <div>
       <h1>repository-concierge</h1>
       {!accessToken && <button onClick={handleLogIn}>Log in</button>}
-      {repos && (
-        <ol>
-          {repos.map((repo: { id: React.Key; name: React.ReactNode }) => (
-            <li key={repo.id}>{repo.name}</li>
-          ))}
-        </ol>
+      {accessToken && <button onClick={handlePRs}>PRs</button>}
+      {prRepos.length > 0 && (
+        <div>
+          <h2>Repos with Open PRs</h2>
+          <ol>
+            {prRepos.map((prRepo) => (
+              <li key={prRepo.repo.id}>
+                {prRepo.repo.name} - {prRepo.pr_count} open PRs
+              </li>
+            ))}
+          </ol>
+        </div>
       )}
     </div>
   );
