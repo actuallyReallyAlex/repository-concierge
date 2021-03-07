@@ -1,9 +1,6 @@
 import { Octokit } from "@octokit/rest";
 import express, { Router, Response } from "express";
 import auth from "../middleware/auth";
-
-// import UserModel from "../models/User";
-// import { OctokitResponse } from "@octokit/types";
 import {
   AuthenticatedRequest,
   Pull,
@@ -33,7 +30,11 @@ class ReposController {
           };
 
           const octokit = new Octokit({ auth: accessToken });
-          const reposWithPullRequests: { repo: Repo; pr_count: number }[] = [];
+          const reposWithPullRequests: {
+            repo: Repo;
+            prs: Pull[];
+            pr_count: number;
+          }[] = [];
 
           for (let i = 0; i < repos.length; i++) {
             const repo = repos[i];
@@ -46,7 +47,11 @@ class ReposController {
             });
             const pull: Pull[] = pullResponse.data;
             if (pull.length > 0) {
-              reposWithPullRequests.push({ repo, pr_count: pull.length });
+              reposWithPullRequests.push({
+                repo,
+                prs: pull,
+                pr_count: pull.length,
+              });
             }
           }
 

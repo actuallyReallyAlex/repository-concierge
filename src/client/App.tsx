@@ -14,7 +14,12 @@ const App: React.FunctionComponent<unknown> = () => {
             path="/auth-final"
             children={<Redirect setIsLoading={setIsLoading} />}
           />
-          <Route path="/" children={<Home setIsLoading={setIsLoading} />} />
+          <Route
+            path="/"
+            children={
+              <Home isLoading={isLoading} setIsLoading={setIsLoading} />
+            }
+          />
         </Switch>
       </Router>
       {isLoading && <LoadingIndicator />}

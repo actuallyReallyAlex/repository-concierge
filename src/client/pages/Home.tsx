@@ -2,11 +2,12 @@ import * as React from "react";
 import { ResponseDataReposPullsGET } from "../../server/types";
 
 interface HomeProps {
+  isLoading: boolean;
   setIsLoading: (isLoading: boolean) => void;
 }
 
 export const Home: React.FunctionComponent<HomeProps> = (props: HomeProps) => {
-  const { setIsLoading } = props;
+  const { isLoading, setIsLoading } = props;
   const [accessToken, setAccessToken] = React.useState("");
   const [prRepos, setPRRepos] = React.useState<ResponseDataReposPullsGET>([]);
 
@@ -60,15 +61,29 @@ export const Home: React.FunctionComponent<HomeProps> = (props: HomeProps) => {
   return (
     <div>
       <h1>repository-concierge</h1>
-      {!accessToken && <button onClick={handleLogIn}>Log in</button>}
-      {accessToken && <button onClick={handlePRs}>PRs</button>}
+      {!accessToken && (
+        <button disabled={isLoading} onClick={handleLogIn}>
+          Log in
+        </button>
+      )}
+      {accessToken && (
+        <button disabled={isLoading} onClick={handlePRs}>
+          PRs
+        </button>
+      )}
       {prRepos.length > 0 && (
         <div>
           <h2>Repos with Open PRs</h2>
           <ol>
-            {prRepos.map((prRepo) => (
-              <li key={prRepo.repo.id}>
-                {prRepo.repo.name} - {prRepo.pr_count} open PRs
+            {prRepos.map(({ repo, prs, pr_count }) => (
+              <li key={repo.id}>
+                <a
+                  href={prs[0].html_url}
+                  rel="noreferrer noopener"
+                  target="_blank"
+                >
+                  {repo.name} - {pr_count} open PRs
+                </a>
               </li>
             ))}
           </ol>

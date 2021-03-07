@@ -186,7 +186,11 @@ export interface Repo {
   watchers_count: number;
 }
 
-export type ResponseDataReposPullsGET = { repo: Repo; pr_count: number }[];
+export type ResponseDataReposPullsGET = {
+  repo: Repo;
+  prs: Pull[];
+  pr_count: number;
+}[];
 
 interface Permissions {
   admin: boolean;
