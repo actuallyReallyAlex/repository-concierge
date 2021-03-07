@@ -1,25 +1,31 @@
 import * as React from "react";
-import { ResponseDataReposPullsGET } from "../../server/types";
+import { Link } from "react-router-dom";
+import { Repo, UserDocument } from "../types";
 
 interface HomeProps {
   isLoading: boolean;
+  repos: Repo[];
+  setCurrentRepo: (currentRepo: Repo) => void;
   setIsLoading: (isLoading: boolean) => void;
+  setRepos: (repos: Repo[]) => void;
 }
 
 export const Home: React.FunctionComponent<HomeProps> = (props: HomeProps) => {
-  const { isLoading, setIsLoading } = props;
+  const { isLoading, repos, setCurrentRepo, setIsLoading, setRepos } = props;
   const [accessToken, setAccessToken] = React.useState("");
-  const [prRepos, setPRRepos] = React.useState<ResponseDataReposPullsGET>([]);
 
   React.useEffect(() => {
     setIsLoading(true);
     fetch("/users/me")
       .then((response) => response.json())
-      .then((data) => {
-        if (!data.error) {
-          setAccessToken(data.accessToken);
-          setIsLoading(false);
+      .then((data: UserDocument | { error: any }) => {
+        if ("error" in data) {
+          console.error(data.error);
+          return setIsLoading(false);
         }
+        setAccessToken(data.accessToken);
+        setRepos(data.repos);
+        setIsLoading(false);
       })
       .catch((error) => console.error(error));
   }, []);
@@ -43,21 +49,6 @@ export const Home: React.FunctionComponent<HomeProps> = (props: HomeProps) => {
     window.location.assign(body.url);
   };
 
-  const handlePRs = async () => {
-    setIsLoading(true);
-    const response = await fetch("/repos/pull-requests", {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "GET",
-    });
-    console.log(response);
-    const data: ResponseDataReposPullsGET = await response.json();
-    console.log(data);
-    setPRRepos(data);
-    setIsLoading(false);
-  };
-
   return (
     <div>
       <h1>repository-concierge</h1>
@@ -66,29 +57,14 @@ export const Home: React.FunctionComponent<HomeProps> = (props: HomeProps) => {
           Log in
         </button>
       )}
-      {accessToken && (
-        <button disabled={isLoading} onClick={handlePRs}>
-          PRs
-        </button>
-      )}
-      {prRepos.length > 0 && (
-        <div>
-          <h2>Repos with Open PRs</h2>
-          <ol>
-            {prRepos.map(({ repo, prs, pr_count }) => (
-              <li key={repo.id}>
-                <a
-                  href={prs[0].html_url}
-                  rel="noreferrer noopener"
-                  target="_blank"
-                >
-                  {repo.name} - {pr_count} open PRs
-                </a>
-              </li>
-            ))}
-          </ol>
+      {repos.length > 0 && <h2>Repos</h2>}
+      {repos.map((repo) => (
+        <div key={repo.id}>
+          <Link onClick={() => setCurrentRepo(repo)} to={`/repos/${repo.name}`}>
+            <h3>{repo.name}</h3>
+          </Link>
         </div>
-      )}
+      ))}
     </div>
   );
 };

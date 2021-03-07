@@ -1,14 +1,16 @@
 import * as React from "react";
 import { Redirect as BrowserRedirect } from "react-router-dom";
+import { Repo, UserDocument } from "../types";
 
 interface RedirectProps {
   setIsLoading: (isLoading: boolean) => void;
+  setRepos: (repos: Repo[]) => void;
 }
 
 export const Redirect: React.FunctionComponent<RedirectProps> = (
   props: RedirectProps
 ) => {
-  const { setIsLoading } = props;
+  const { setIsLoading, setRepos } = props;
   const [accessTokenSaved, setAccessTokenSaved] = React.useState(false);
   const accessToken = window.location.search.split("=")[1];
   React.useEffect(() => {
@@ -20,12 +22,15 @@ export const Redirect: React.FunctionComponent<RedirectProps> = (
       },
       method: "POST",
     })
-      .then((response) => {
+      .then((response: Response) => {
         if (response.status !== 201) {
           console.error("Error!");
         } else {
-          setAccessTokenSaved(true);
-          setIsLoading(false);
+          response.json().then((user: UserDocument) => {
+            setAccessTokenSaved(true);
+            setRepos(user.repos);
+            setIsLoading(false);
+          });
         }
       })
       .catch((error) => console.error(error));
