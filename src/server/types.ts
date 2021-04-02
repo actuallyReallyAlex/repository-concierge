@@ -2,7 +2,7 @@ import { Request, Router } from "express";
 import { Document, Model } from "mongoose";
 
 export interface ApplicationRequest extends Request {
-  user?: Document;
+  user?: UserDocument;
 }
 
 export interface AuthenticatedRequest extends Request {
@@ -249,7 +249,8 @@ export interface Token {
 export interface UserDocument extends Document {
   accessToken: string;
   generateAuthToken: () => Promise<string>;
-  repos: GHRepo[];
+  repos: RCRepo[];
+  reposProcessedAt?: string;
   tokens: Token[];
 }
 

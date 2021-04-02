@@ -231,5 +231,6 @@ export interface UserDocument extends Document {
   accessToken: string;
   generateAuthToken: () => Promise<string>;
   repos: RCRepo[];
+  reposProcessedAt?: string;
   tokens: Token[];
 }

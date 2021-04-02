@@ -18,7 +18,7 @@ export const Home: React.FunctionComponent<HomeProps> = (props: HomeProps) => {
     setIsLoading(true);
     fetch("/users/me")
       .then((response) => response.json())
-      .then((data: UserDocument | { error: any }) => {
+      .then((data: UserDocument | { error: string }) => {
         if ("error" in data) {
           console.error(data.error);
           return setIsLoading(false);

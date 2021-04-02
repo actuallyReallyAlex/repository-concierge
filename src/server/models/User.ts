@@ -65,6 +65,7 @@ const UserSchema = new Schema<UserDocument, UserModel>(
         owner: Object,
         permissions: Object,
         private: Boolean,
+        pullRequests: Object,
         pulls_url: String,
         pushed_at: String,
         releases_url: String,
@@ -85,6 +86,10 @@ const UserSchema = new Schema<UserDocument, UserModel>(
         watchers_count: Number,
       },
     ],
+    reposProcessedAt: {
+      required: false,
+      type: String,
+    },
     tokens: [
       {
         token: {

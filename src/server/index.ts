@@ -2,7 +2,6 @@ import App from "./app";
 
 import AssetsController from "./controllers/Assets";
 import AuthController from "./controllers/Auth";
-import ReposController from "./controllers/Repos";
 import UserController from "./controllers/User";
 
 import { Controller } from "./types";
@@ -15,7 +14,6 @@ const main = async (): Promise<void> => {
     const controllers: Controller[] = [
       new AssetsController(),
       new AuthController(),
-      new ReposController(),
       new UserController(),
     ];
 
