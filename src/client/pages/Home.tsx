@@ -1,13 +1,13 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
-import { Repo, UserDocument } from "../types";
+import RepoItem from "../components/RepoItem";
+import { RCRepo, UserDocument } from "../types";
 
 interface HomeProps {
   isLoading: boolean;
-  repos: Repo[];
-  setCurrentRepo: (currentRepo: Repo) => void;
+  repos: RCRepo[];
+  setCurrentRepo: (currentRepo: RCRepo) => void;
   setIsLoading: (isLoading: boolean) => void;
-  setRepos: (repos: Repo[]) => void;
+  setRepos: (repos: RCRepo[]) => void;
 }
 
 export const Home: React.FunctionComponent<HomeProps> = (props: HomeProps) => {
@@ -59,11 +59,7 @@ export const Home: React.FunctionComponent<HomeProps> = (props: HomeProps) => {
       )}
       {repos.length > 0 && <h2>Repos</h2>}
       {repos.map((repo) => (
-        <div key={repo.id}>
-          <Link onClick={() => setCurrentRepo(repo)} to={`/repos/${repo.name}`}>
-            <h3>{repo.name}</h3>
-          </Link>
-        </div>
+        <RepoItem key={repo.id} repo={repo} setCurrentRepo={setCurrentRepo} />
       ))}
     </div>
   );

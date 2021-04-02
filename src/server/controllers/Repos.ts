@@ -3,9 +3,9 @@ import express, { Router, Response } from "express";
 import auth from "../middleware/auth";
 import {
   AuthenticatedRequest,
-  Pull,
+  GHPull,
+  GHRepo,
   ResponseDataReposPullsGET,
-  Repo,
 } from "../types";
 
 class ReposController {
@@ -31,8 +31,8 @@ class ReposController {
 
           const octokit = new Octokit({ auth: accessToken });
           const reposWithPullRequests: {
-            repo: Repo;
-            prs: Pull[];
+            repo: GHRepo;
+            prs: GHPull[];
             pr_count: number;
           }[] = [];
 
@@ -45,7 +45,7 @@ class ReposController {
               owner: repo.owner?.login,
               repo: repo.name,
             });
-            const pull: Pull[] = pullResponse.data;
+            const pull: GHPull[] = pullResponse.data;
             if (pull.length > 0) {
               reposWithPullRequests.push({
                 repo,

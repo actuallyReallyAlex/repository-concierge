@@ -29,7 +29,7 @@ const auth = async (
         );
       }
 
-      // * User is authenticated
+      // * GHUser is authenticated
       req.user = user;
       next();
     } else {

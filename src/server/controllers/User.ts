@@ -46,7 +46,9 @@ class UserController {
           return res.status(201).send(user);
         } catch (error) {
           console.error(error);
-          return res.status(500).send({ error: "Error when Creating a User" });
+          return res
+            .status(500)
+            .send({ error: "Error when Creating a GHUser" });
         }
       }
     );

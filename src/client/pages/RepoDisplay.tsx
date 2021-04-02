@@ -1,8 +1,8 @@
 import * as React from "react";
-import { Repo } from "../types";
+import { RCRepo } from "../types";
 
 interface RepoDisplayProps {
-  currentRepo: Repo | null;
+  currentRepo: RCRepo | null;
 }
 
 export const RepoDisplay: React.FunctionComponent<RepoDisplayProps> = (

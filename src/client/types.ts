@@ -1,31 +1,18 @@
-import { Request, Router } from "express";
-import { Document, Model } from "mongoose";
+import { Document } from "mongoose";
 
-export interface ApplicationRequest extends Request {
-  user?: Document;
+interface GHAutoMerge {
+  enabled_by: GHUser | null;
 }
 
-export interface AuthenticatedRequest extends Request {
-  user?: UserDocument;
-}
-
-interface AutoMerge {
-  enabled_by: User | null;
-}
-
-interface Base {
+interface GHBase {
   label: string;
   ref: string;
-  repo: Repo;
+  repo: GHRepo;
   sha: string;
-  user: User | null;
+  user: GHUser | null;
 }
 
-export type Controller = {
-  router: Router;
-};
-
-interface Label {
+interface GHLabel {
   id?: number | undefined;
   node_id?: string | undefined;
   url?: string | undefined;
@@ -35,7 +22,7 @@ interface Label {
   default?: boolean | undefined;
 }
 
-interface License {
+interface GHLicense {
   key: string;
   name: string;
   url: string | null;
@@ -44,22 +31,22 @@ interface License {
   html_url?: string | undefined;
 }
 
-interface Link {
+interface GHLink {
   href: string;
 }
 
-interface Links {
-  comments: Link;
-  commits: Link;
-  html: Link;
-  issue: Link;
-  review_comment: Link;
-  review_comments: Link;
-  self: Link;
-  statuses: Link;
+interface GHLinks {
+  comments: GHLink;
+  commits: GHLink;
+  html: GHLink;
+  issue: GHLink;
+  review_comment: GHLink;
+  review_comments: GHLink;
+  self: GHLink;
+  statuses: GHLink;
 }
 
-interface Milestone {
+interface GHMilestone {
   url: string;
   html_url: string;
   labels_url: string;
@@ -69,16 +56,24 @@ interface Milestone {
   state: "open" | "closed";
   title: string;
   description: string | null;
-  creator: User | null;
+  creator: GHUser | null;
 }
 
-export interface Pull {
-  _links: Links;
+interface GHPermissions {
+  admin: boolean;
+  pull: boolean;
+  triage?: boolean | undefined;
+  push: boolean;
+  maintain?: boolean | undefined;
+}
+
+export interface GHPull {
+  _links: GHLinks;
   active_lock_reason?: string | null | undefined;
-  assignee: User | null;
-  assignees?: (User | null)[] | null | undefined;
-  auto_merge: AutoMerge | null;
-  base: Base;
+  assignee: GHUser | null;
+  assignees?: (GHUser | null)[] | null | undefined;
+  auto_merge: GHAutoMerge | null;
+  base: GHBase;
   body: string | null;
   closed_at: string | null;
   comments_url: string;
@@ -86,20 +81,20 @@ export interface Pull {
   created_at: string;
   diff_url: string;
   draft?: boolean | undefined;
-  head: Base;
+  head: GHBase;
   html_url: string;
   id: number;
   issue_url: string;
-  labels: Label[];
+  labels: GHLabel[];
   locked: boolean;
   merge_commit_sha: string | null;
   merged_at: string | null;
-  milestone: Milestone | null;
+  milestone: GHMilestone | null;
   node_id: string;
   number: number;
   patch_url: string;
-  requested_reviewers?: (User | null)[] | null | undefined;
-  requested_teams?: (Team | null)[] | null | undefined;
+  requested_reviewers?: (GHUser | null)[] | null | undefined;
+  requested_teams?: (GHTeam | null)[] | null | undefined;
   review_comment_url: string;
   review_comments_url: string;
   state: string;
@@ -107,10 +102,10 @@ export interface Pull {
   title: string;
   updated_at: string;
   url: string;
-  user: User | null;
+  user: GHUser | null;
 }
 
-export interface Repo {
+interface GHRepo {
   archive_url: string;
   archived: boolean;
   assignees_url: string;
@@ -154,7 +149,7 @@ export interface Repo {
   labels_url: string;
   language: null | string;
   languages_url: string;
-  license: License | null;
+  license: GHLicense | null;
   merges_url: string;
   milestones_url: string;
   mirror_url: null | string;
@@ -163,8 +158,8 @@ export interface Repo {
   notifications_url: string;
   open_issues: number;
   open_issues_count: number;
-  owner: User | null;
-  permissions?: Permissions | undefined;
+  owner: GHUser | null;
+  permissions?: GHPermissions | undefined;
   private: boolean;
   pulls_url: string;
   pushed_at: string | null;
@@ -186,21 +181,7 @@ export interface Repo {
   watchers_count: number;
 }
 
-export type ResponseDataReposPullsGET = {
-  repo: Repo;
-  prs: Pull[];
-  pr_count: number;
-}[];
-
-interface Permissions {
-  admin: boolean;
-  pull: boolean;
-  triage?: boolean | undefined;
-  push: boolean;
-  maintain?: boolean | undefined;
-}
-
-interface Team {
+interface GHTeam {
   id: number;
   node_id: string;
   url: string;
@@ -215,13 +196,7 @@ interface Team {
   ldap_dn?: string | undefined;
 }
 
-export interface Token {
-  _id?: string;
-  // ? Rename to 'value'
-  token: string;
-}
-
-interface User {
+interface GHUser {
   avatar_url: string;
   events_url: string;
   followers_url: string;
@@ -242,14 +217,19 @@ interface User {
   url: string;
 }
 
+export interface RCRepo extends GHRepo {
+  pullRequests: GHPull[];
+}
+
+interface Token {
+  _id?: string;
+  // ? Rename to 'value'
+  token: string;
+}
+
 export interface UserDocument extends Document {
   accessToken: string;
   generateAuthToken: () => Promise<string>;
-  repos: Repo[];
+  repos: RCRepo[];
   tokens: Token[];
-}
-
-export interface UserModel extends Model<UserDocument> {
-  save: () => Promise<void>;
-  id: string;
 }

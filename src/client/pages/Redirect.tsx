@@ -1,10 +1,10 @@
 import * as React from "react";
 import { Redirect as BrowserRedirect } from "react-router-dom";
-import { Repo, UserDocument } from "../types";
+import { RCRepo, UserDocument } from "../types";
 
 interface RedirectProps {
   setIsLoading: (isLoading: boolean) => void;
-  setRepos: (repos: Repo[]) => void;
+  setRepos: (repos: RCRepo[]) => void;
 }
 
 export const Redirect: React.FunctionComponent<RedirectProps> = (
