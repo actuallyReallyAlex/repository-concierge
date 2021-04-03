@@ -8,6 +8,10 @@ const UserSchema = new Schema<UserDocument, UserModel>(
       required: true,
       type: String,
     },
+    repoProcessingInProgress: {
+      required: true,
+      type: Boolean,
+    },
     repos: [
       {
         archive_url: String,

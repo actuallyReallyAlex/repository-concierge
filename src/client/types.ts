@@ -230,6 +230,7 @@ interface Token {
 export interface UserDocument extends Document {
   accessToken: string;
   generateAuthToken: () => Promise<string>;
+  repoProcessingInProgress: boolean;
   repos: RCRepo[];
   reposProcessedAt?: string;
   tokens: Token[];

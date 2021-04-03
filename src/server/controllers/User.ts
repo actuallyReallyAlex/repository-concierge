@@ -3,7 +3,8 @@ import isToday from "date-fns/isToday";
 import express, { Router, Request, Response } from "express";
 import auth from "../middleware/auth";
 import UserModel from "../models/User";
-import { ApplicationRequest, GHPull, UserDocument } from "../types";
+import processRepos from "../processes/processRepos";
+import { ApplicationRequest, UserDocument } from "../types";
 
 class UserController {
   public router: Router = express.Router();
@@ -26,6 +27,7 @@ class UserController {
 
           const user = new UserModel({
             accessToken,
+            repoProcessingInProgress: false,
             repos,
           });
 
@@ -60,45 +62,25 @@ class UserController {
       async (req: ApplicationRequest, res: Response) => {
         try {
           const {
-            accessToken,
-            repos,
+            repoProcessingInProgress,
             reposProcessedAt,
           } = req.user as UserDocument;
+
+          // * If repo processing is in progress, send user document
+          if (repoProcessingInProgress) {
+            return res.send(req.user);
+          }
 
           const shouldProcessRepos =
             !reposProcessedAt || !isToday(new Date(reposProcessedAt));
 
           if (shouldProcessRepos) {
-            const updatedRepos = [...repos];
-
-            const octokit = new Octokit({ auth: accessToken });
-            // * Go through each repository
-            for (let i = 0; i < updatedRepos.length; i++) {
-              const repo = updatedRepos[i];
-              if (!repo.owner) {
-                throw new Error("No repo.owner!");
-              }
-              const pullResponse = await octokit.pulls.list({
-                owner: repo.owner?.login,
-                repo: repo.name,
-              });
-              // * List of PRs for this particular repo
-              const pull: GHPull[] = pullResponse.data;
-
-              // * Update the pullRequests key on the repo object
-              console.log(`Repo: ${repo.name} has ${pull.length} open PRs`);
-              repo.pullRequests = pull;
-            }
-
-            // * Save the updated user to the databse
-            (req.user as UserDocument).set("repos", updatedRepos);
+            await (req.user as UserDocument).updateOne({
+              $set: { repoProcessingInProgress: true },
+            });
+            processRepos(req.user as UserDocument);
+            return res.send(req.user);
           }
-
-          // * Set the timestamp for reposProcessedAt
-          const timestamp = new Date().toString();
-          console.log(`Setting reposProcessedAt to: ${timestamp}`);
-          (req.user as UserDocument).set("reposProcessedAt", timestamp);
-          await (req.user as UserDocument).save();
 
           // * Respond with the user db object
           return res.send(req.user);
