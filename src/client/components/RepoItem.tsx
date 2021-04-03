@@ -15,10 +15,13 @@ const RepoItem: React.FunctionComponent<RepoItemProps> = (
 
   return (
     <div>
-      <Link onClick={() => setCurrentRepo(repo)} to={`/repos/${name}`}>
+      <a href={repo.html_url} rel="noopener noreferrer" target="_blank">
         <h3>{name}</h3>
-        {pullRequests === undefined && <span>PROCESSING PULL REQUESTS</span>}
-        {pullRequests && <span>{pullRequests.length} OPEN PULL REQUESTS</span>}
+      </a>
+      {pullRequests === undefined && <span>PROCESSING PULL REQUESTS</span>}
+      {pullRequests && <span>{pullRequests.length} OPEN PULL REQUESTS</span>}
+      <Link onClick={() => setCurrentRepo(repo)} to={`/repos/${name}`}>
+        <span>Settings</span>
       </Link>
     </div>
   );
