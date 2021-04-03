@@ -1,17 +1,28 @@
 import * as React from "react";
+import RepoDisplayForm from "../components/RepoDisplayForm";
 import RepoItem from "../components/RepoItem";
 import { RCRepo, UserDocument } from "../types";
 
 interface HomeProps {
+  filteredRepos: RCRepo[];
   isLoading: boolean;
   repos: RCRepo[];
   setCurrentRepo: (currentRepo: RCRepo) => void;
+  setFilteredRepos: (filteredRepos: RCRepo[]) => void;
   setIsLoading: (isLoading: boolean) => void;
   setRepos: (repos: RCRepo[]) => void;
 }
 
 export const Home: React.FunctionComponent<HomeProps> = (props: HomeProps) => {
-  const { isLoading, repos, setCurrentRepo, setIsLoading, setRepos } = props;
+  const {
+    filteredRepos,
+    isLoading,
+    repos,
+    setCurrentRepo,
+    setFilteredRepos,
+    setIsLoading,
+    setRepos,
+  } = props;
   const [accessToken, setAccessToken] = React.useState("");
 
   React.useEffect(() => {
@@ -57,8 +68,13 @@ export const Home: React.FunctionComponent<HomeProps> = (props: HomeProps) => {
           Log in
         </button>
       )}
-      {repos.length > 0 && <h2>Repos</h2>}
-      {repos.map((repo) => (
+      {repos.length > 0 && (
+        <>
+          <h2>Repos</h2>
+          <RepoDisplayForm repos={repos} setFilteredRepos={setFilteredRepos} />
+        </>
+      )}
+      {filteredRepos.map((repo) => (
         <RepoItem key={repo.id} repo={repo} setCurrentRepo={setCurrentRepo} />
       ))}
     </div>

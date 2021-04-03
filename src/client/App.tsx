@@ -7,7 +7,14 @@ import { RCRepo } from "./types";
 const App: React.FunctionComponent<unknown> = () => {
   const [isLoading, setIsLoading] = React.useState(true);
   const [repos, setRepos] = React.useState<RCRepo[]>([]);
+  const [filteredRepos, setFilteredRepos] = React.useState<RCRepo[]>(
+    repos.filter((repo) => repo.pullRequests.length > 0)
+  );
   const [currentRepo, setCurrentRepo] = React.useState<RCRepo | null>(null);
+
+  React.useEffect(() => {
+    setFilteredRepos(repos.filter((repo) => repo.pullRequests.length > 0));
+  }, [repos]);
 
   return (
     <>
@@ -25,9 +32,11 @@ const App: React.FunctionComponent<unknown> = () => {
             path="/"
             children={
               <Home
+                filteredRepos={filteredRepos}
                 isLoading={isLoading}
                 repos={repos}
                 setCurrentRepo={setCurrentRepo}
+                setFilteredRepos={setFilteredRepos}
                 setIsLoading={setIsLoading}
                 setRepos={setRepos}
               />
