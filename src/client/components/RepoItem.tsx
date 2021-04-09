@@ -1,37 +1,42 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { Badge, List, Tag } from "antd";
 import { RCRepo } from "../types";
+
+const languageColors: {
+  [key: string]: string;
+} = {
+  CSS: "purple",
+  HTML: "red",
+  JavaScript: "green",
+  TypeScript: "cyan",
+};
 
 interface RepoItemProps {
   repo: RCRepo;
-  setCurrentRepo: (currentRepo: RCRepo) => void;
 }
 
 const RepoItem: React.FunctionComponent<RepoItemProps> = (
   props: RepoItemProps
 ) => {
-  const { repo, setCurrentRepo } = props;
-  const { name, pullRequests } = repo;
+  const { repo } = props;
 
   return (
-    <div>
-      <a href={repo.html_url} rel="noopener noreferrer" target="_blank">
-        <h3>{name}</h3>
-      </a>
-      {pullRequests === undefined && <span>PROCESSING PULL REQUESTS</span>}
-      {pullRequests && (
-        <a
-          href={`${repo.html_url}/pulls`}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          <span>{pullRequests.length} OPEN PULL REQUESTS</span>
-        </a>
-      )}
-      <Link onClick={() => setCurrentRepo(repo)} to={`/repos/${name}`}>
-        <span>Settings</span>
-      </Link>
-    </div>
+    <List.Item
+      actions={[
+        <div>
+          <span>Pull Requests</span>
+          <Badge count={repo.pullRequests.length} offset={[0, -10]} />
+        </div>,
+        <span>Settings</span>,
+      ]}
+    >
+      <List.Item.Meta description={repo.description} title={repo.name} />
+      <div>
+        <Tag color={repo.language ? languageColors[repo.language] : "blue"}>
+          {repo.language}
+        </Tag>
+      </div>
+    </List.Item>
   );
 };
 

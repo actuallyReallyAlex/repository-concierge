@@ -1,17 +1,8 @@
-import { Badge, Button, Layout, List, Tag, Typography } from "antd";
+import { Button, Layout, List, Typography } from "antd";
 import * as React from "react";
-import { Link } from "react-router-dom";
 import RepoDisplayForm from "../components/RepoDisplayForm";
+import RepoItem from "../components/RepoItem";
 import { RCRepo, UserDocument } from "../types";
-
-const languageColors: {
-  [key: string]: string;
-} = {
-  CSS: "purple",
-  HTML: "red",
-  JavaScript: "green",
-  TypeScript: "cyan",
-};
 
 interface HomeProps {
   filteredRepos: RCRepo[];
@@ -28,7 +19,6 @@ export const Home: React.FunctionComponent<HomeProps> = (props: HomeProps) => {
     filteredRepos,
     isLoading,
     repos,
-    setCurrentRepo,
     setFilteredRepos,
     setIsLoading,
     setRepos,
@@ -106,34 +96,7 @@ export const Home: React.FunctionComponent<HomeProps> = (props: HomeProps) => {
               `${range[0]}-${range[1]} of ${total} items`,
             total: filteredRepos.length,
           }}
-          renderItem={(repo) => (
-            <List.Item
-              actions={[
-                <Link to={`/repos/${repo.name}`}>
-                  <span>Pull Requests</span>
-                  <Badge count={repo.pullRequests.length} offset={[0, -15]} />
-                </Link>,
-                <Link
-                  onClick={() => setCurrentRepo(repo)}
-                  to={`/repos/${repo.name}`}
-                >
-                  <span>Settings</span>
-                </Link>,
-              ]}
-            >
-              <List.Item.Meta
-                description={repo.description}
-                title={repo.name}
-              />
-              <div>
-                <Tag
-                  color={repo.language ? languageColors[repo.language] : "blue"}
-                >
-                  {repo.language}
-                </Tag>
-              </div>
-            </List.Item>
-          )}
+          renderItem={(repo) => <RepoItem repo={repo} />}
         ></List>
       </Layout.Content>
       <Layout.Footer className="footer">Footer</Layout.Footer>
