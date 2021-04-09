@@ -1,7 +1,17 @@
+import { Badge, Button, Layout, List, Tag, Typography } from "antd";
 import * as React from "react";
+import { Link } from "react-router-dom";
 import RepoDisplayForm from "../components/RepoDisplayForm";
-import RepoItem from "../components/RepoItem";
 import { RCRepo, UserDocument } from "../types";
+
+const languageColors: {
+  [key: string]: string;
+} = {
+  CSS: "purple",
+  HTML: "red",
+  JavaScript: "green",
+  TypeScript: "cyan",
+};
 
 interface HomeProps {
   filteredRepos: RCRepo[];
@@ -24,6 +34,7 @@ export const Home: React.FunctionComponent<HomeProps> = (props: HomeProps) => {
     setRepos,
   } = props;
   const [accessToken, setAccessToken] = React.useState("");
+  const [pageSize, setPageSize] = React.useState(5);
 
   React.useEffect(() => {
     setIsLoading(true);
@@ -61,23 +72,72 @@ export const Home: React.FunctionComponent<HomeProps> = (props: HomeProps) => {
   };
 
   return (
-    <div>
-      <h1>repository-concierge</h1>
-      {!accessToken && (
-        <button disabled={isLoading} onClick={handleLogIn}>
-          Log in
-        </button>
-      )}
-      {repos.length > 0 && (
-        <>
-          <h2>Repos</h2>
-          <RepoDisplayForm repos={repos} setFilteredRepos={setFilteredRepos} />
-        </>
-      )}
-      {filteredRepos.map((repo) => (
-        <RepoItem key={repo.id} repo={repo} setCurrentRepo={setCurrentRepo} />
-      ))}
-    </div>
+    <Layout className="layout">
+      <Layout.Header className="header">
+        <Typography.Title>repository-concierge</Typography.Title>
+      </Layout.Header>
+      <Layout.Content className="content">
+        {!accessToken && (
+          <Button disabled={isLoading} onClick={handleLogIn} type="primary">
+            Log in
+          </Button>
+        )}
+        {repos.length > 0 && (
+          <>
+            <Typography.Title level={2}>Repos</Typography.Title>
+            <RepoDisplayForm
+              repos={repos}
+              setFilteredRepos={setFilteredRepos}
+            />
+          </>
+        )}
+        <List
+          bordered
+          dataSource={filteredRepos}
+          itemLayout="horizontal"
+          pagination={{
+            defaultCurrent: 1,
+            onShowSizeChange: (current, size) => {
+              setPageSize(size);
+            },
+            pageSize,
+            pageSizeOptions: ["5", "10", "25", "50", "100"],
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} of ${total} items`,
+            total: filteredRepos.length,
+          }}
+          renderItem={(repo) => (
+            <List.Item
+              actions={[
+                <Link to={`/repos/${repo.name}`}>
+                  <span>Pull Requests</span>
+                  <Badge count={repo.pullRequests.length} offset={[0, -15]} />
+                </Link>,
+                <Link
+                  onClick={() => setCurrentRepo(repo)}
+                  to={`/repos/${repo.name}`}
+                >
+                  <span>Settings</span>
+                </Link>,
+              ]}
+            >
+              <List.Item.Meta
+                description={repo.description}
+                title={repo.name}
+              />
+              <div>
+                <Tag
+                  color={repo.language ? languageColors[repo.language] : "blue"}
+                >
+                  {repo.language}
+                </Tag>
+              </div>
+            </List.Item>
+          )}
+        ></List>
+      </Layout.Content>
+      <Layout.Footer className="footer">Footer</Layout.Footer>
+    </Layout>
   );
 };
 

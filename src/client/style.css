@@ -1,0 +1,18 @@
+.layout {
+  height: 100%;
+}
+
+header.header {
+  align-items: center;
+  background: #1890ff;
+  display: flex;
+}
+
+header > h1.ant-typography {
+  color: #ffffff;
+  margin-bottom: 0;
+}
+
+main {
+  padding: 5%;
+}

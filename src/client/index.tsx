@@ -1,6 +1,7 @@
 import * as React from "react";
 import ReactDOM from "react-dom";
 import "antd/dist/antd.css";
+import "./style.css";
 
 import App from "./App";
 
