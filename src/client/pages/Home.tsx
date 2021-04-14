@@ -1,8 +1,9 @@
 import { Button, Layout, List, Typography } from "antd";
 import * as React from "react";
+import Dialog from "../components/Dialog";
 import RepoDisplayForm from "../components/RepoDisplayForm";
 import RepoItem from "../components/RepoItem";
-import { RCRepo, UserDocument } from "../types";
+import { GHPull, RCRepo, UserDocument } from "../types";
 
 interface HomeProps {
   filteredRepos: RCRepo[];
@@ -24,6 +25,10 @@ export const Home: React.FunctionComponent<HomeProps> = (props: HomeProps) => {
     setRepos,
   } = props;
   const [accessToken, setAccessToken] = React.useState("");
+  const [isModalVisible, setIsModalVisible] = React.useState(false);
+  const [modalTitle, setModalTitle] = React.useState("");
+  const [pullRequests, setPullRequests] = React.useState<GHPull[]>([]);
+
   const [pageSize, setPageSize] = React.useState(5);
 
   React.useEffect(() => {
@@ -61,6 +66,17 @@ export const Home: React.FunctionComponent<HomeProps> = (props: HomeProps) => {
     window.location.assign(body.url);
   };
 
+  const handleClickPullRequests = (pullRequests: GHPull[]) => {
+    setPullRequests(pullRequests);
+    setModalTitle("Pull Requests");
+    setIsModalVisible(true);
+  };
+
+  const handleClickSettings = () => {
+    setModalTitle("Settings");
+    setIsModalVisible(true);
+  };
+
   return (
     <Layout className="layout">
       <Layout.Header className="header">
@@ -96,10 +112,26 @@ export const Home: React.FunctionComponent<HomeProps> = (props: HomeProps) => {
               `${range[0]}-${range[1]} of ${total} items`,
             total: filteredRepos.length,
           }}
-          renderItem={(repo) => <RepoItem repo={repo} />}
+          renderItem={(repo) => (
+            <RepoItem
+              handleClickPullRequests={() =>
+                handleClickPullRequests(repo.pullRequests)
+              }
+              handleClickSettings={handleClickSettings}
+              repo={repo}
+            />
+          )}
         ></List>
       </Layout.Content>
       <Layout.Footer className="footer">Footer</Layout.Footer>
+      <Dialog
+        pullRequests={pullRequests}
+        setIsModalVisible={setIsModalVisible}
+        setModalTitle={setModalTitle}
+        setPullRequests={setPullRequests}
+        title={modalTitle}
+        visible={isModalVisible}
+      />
     </Layout>
   );
 };

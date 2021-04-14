@@ -12,22 +12,24 @@ const languageColors: {
 };
 
 interface RepoItemProps {
+  handleClickPullRequests: () => void;
+  handleClickSettings: () => void;
   repo: RCRepo;
 }
 
 const RepoItem: React.FunctionComponent<RepoItemProps> = (
   props: RepoItemProps
 ) => {
-  const { repo } = props;
+  const { handleClickPullRequests, handleClickSettings, repo } = props;
 
   return (
     <List.Item
       actions={[
-        <div>
+        <div onClick={handleClickPullRequests}>
           <span>Pull Requests</span>
           <Badge count={repo.pullRequests.length} offset={[0, -10]} />
         </div>,
-        <span>Settings</span>,
+        <span onClick={handleClickSettings}>Settings</span>,
       ]}
     >
       <List.Item.Meta description={repo.description} title={repo.name} />
